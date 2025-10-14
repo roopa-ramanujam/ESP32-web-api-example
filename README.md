@@ -21,7 +21,7 @@ Prerequisites*
 
 Each ESP32 device has a unique MAC address identifier, which we need to connect to the Berkeley-IoT WiFi network. 
 
-To get your device MAC address, copy the code below into a new Arduino sketch or download and open this example sketch: GetESP32MACAddress.ino
+To get your device MAC address, copy the code below into a new Arduino sketch or download and open this example sketch: [GetESP32MACAddress.ino](https://github.com/roopa-ramanujam/ESP32-web-api-example/blob/main/GetESP32MACAddress.ino)
 
 ```cpp
 /*
@@ -83,7 +83,7 @@ You should now see your ESP32 in the list of registered devices.
 
 # Test Berkeley-IoT WiFi connection
 
-Copy the code below into a new Arduino sketch or download and open this example sketch: [WiFiTest.ino](#WiFiTest.ino)
+Copy the code below into a new Arduino sketch or download and open this example sketch: [WiFiTest.ino](https://github.com/roopa-ramanujam/ESP32-web-api-example/blob/main/WiFiTest.ino)
 
 ```cpp
 #include <WiFi.h>
@@ -165,7 +165,7 @@ We will change the color of the LED and its blink rate based on the temperature 
 
 ## Set up the code
 
-Copy the code below into a new Arduino sketch or download and open this example sketch: WeatherAPIExample.ino
+Copy the code below into a new Arduino sketch or download and open this example sketch: [WeatherAPIExample.ino](https://github.com/roopa-ramanujam/ESP32-web-api-example/blob/main/WeatherAPIExample.ino)
 
 ```cpp
 #include <arduino_secrets.h>
