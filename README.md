@@ -83,7 +83,7 @@ You should now see your ESP32 in the list of registered devices.
 
 # Test Berkeley-IoT WiFi connection
 
-Copy the code below into a new Arduino sketch or download and open this example sketch: WiFiTest.ino
+Copy the code below into a new Arduino sketch or download and open this example sketch: [WiFiTest.ino](#WiFiTest.ino)
 
 ```cpp
 #include <WiFi.h>
