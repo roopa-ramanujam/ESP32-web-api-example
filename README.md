@@ -248,16 +248,27 @@ void getWeatherData() {
     Serial.print("HTTP response code: ");
     Serial.println(httpResponseCode);
 
+    // Successful response
     if (httpResponseCode == 200) {
+
+      // Get the JSON payload
       String payload = http.getString();
+
+      // Parse it into a JSONVar object
       JSONVar jsonObject = JSON.parse(payload);
 
+      // Check if parsing succeeded
       if (JSON.typeof(jsonObject) == "undefined") {
         Serial.println("Parsing input failed!");
         http.end();
         return;
       }
 
+      // Log the JSON response
+      Serial.print("raw JSON response: ");
+      Serial.println(jsonObject);
+
+      // Extract the nested values
       currentTemp = double(jsonObject["current_weather"]["temperature"]);
       currentWind = double(jsonObject["current_weather"]["windspeed"]);
 
@@ -292,7 +303,7 @@ void visualizeWeather(double tempF, double windspeed) {
     red = 255;
   }
 
-  // Blink speed by windspeed (0–30 mph)
+  // Map windspeed (0–30 mph) → blink rate (slower = calm, faster = windy)
   int blinkDelay = map((int)windspeed, 0, 30, 800, 100);
 
   // Blink once per loop iteration
@@ -304,6 +315,7 @@ void visualizeWeather(double tempF, double windspeed) {
   pixel.show();
   delay(blinkDelay);
 }
+
 
 ```
 
