@@ -315,7 +315,8 @@ Install Arduino_JSON from the libraries manager.
 
 Compile + upload the sketch. You should see something like this in the Serial monitor:
 
-<img width="1305" height="111" alt="image" src="https://github.com/user-attachments/assets/f246cb49-c427-46b5-bc23-f60362ddfb0b" />
+<img width="1275" height="111" alt="image" src="https://github.com/user-attachments/assets/e3733ed8-9fbf-44a3-997e-a87f2213da2e" />
+
 
 
 Your onboard neopixel LED should be red, green, or blue, depending on the temperature, and blinking depending on the wind speed.
