@@ -89,6 +89,8 @@ You should now see your ESP32 in the list of registered devices.
 
 Copy the code below into a new Arduino sketch or download and open this example sketch: [WiFiTest.ino](https://github.com/roopa-ramanujam/ESP32-web-api-example/blob/main/WiFiTest.ino)
 
+DO NOT COMPILE/RUN THE SKETCH YET! Keep reading below.
+
 ```cpp
 #include <WiFi.h>
 #include <secrets.h>
@@ -152,7 +154,7 @@ Your ```secrets.h``` file is included in the WiFi test sketch with this line:
 
 ## Run the WiFi test code
 
-Compile + upload the sketch to your ESP32. You should see something like this if the WiFi successfully connects:
+Now, compile + upload the sketch to your ESP32. You should see something like this if the WiFi successfully connects:
 
 <img width="342" height="55" alt="image" src="https://github.com/user-attachments/assets/ad6dd697-186d-49d3-b129-499b81a956d4" />
 
@@ -161,7 +163,15 @@ Compile + upload the sketch to your ESP32. You should see something like this if
 
 ## Set up the code
 
+In the Arduino IDE, install Arduino_JSON from the libraries manager.
+
+<img width="257" height="300" alt="image" src="https://github.com/user-attachments/assets/d3c9b893-6b18-4547-a4d5-ff78e39e74d3" />
+
 Copy the code below into a new Arduino sketch or download and open this example sketch: [WeatherAPIExample.ino](https://github.com/roopa-ramanujam/ESP32-web-api-example/blob/main/WeatherAPIExample.ino)
+
+Create another ```secrets.h``` file for this sketch with your Berkeley-IoT credentials, just like in the WiFi test sketch.
+
+Compile + upload the sketch. 
 
 ```cpp
 #include <secrets.h>
@@ -319,13 +329,7 @@ void visualizeWeather(double tempF, double windspeed) {
 
 ```
 
-Create another ```secrets.h``` file for this sketch with your Berkeley-IoT credentials, just like in the WiFi test sketch.
-
-Install Arduino_JSON from the libraries manager.
-
-<img width="257" height="300" alt="image" src="https://github.com/user-attachments/assets/d3c9b893-6b18-4547-a4d5-ff78e39e74d3" />
-
-Compile + upload the sketch. You should see something like this in the Serial monitor:
+You should see something like this in the Serial monitor:
 
 <img width="1275" height="111" alt="image" src="https://github.com/user-attachments/assets/e3733ed8-9fbf-44a3-997e-a87f2213da2e" />
 
