@@ -239,7 +239,10 @@ void getWeatherData() {
 
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
+    // Open connection with website
     http.begin(weather_api);
+
+    // website tells us if data was retrieved and sent back to us successfully
     int httpResponseCode = http.GET();
 
     Serial.print("HTTP response code: ");
@@ -247,7 +250,7 @@ void getWeatherData() {
 
     // Successful response
     if (httpResponseCode == 200) {
-      // Get the JSON payload
+      // Get the JSON response
       String payload = http.getString();
 
       // Parse it into a JSONVar object
@@ -279,7 +282,7 @@ void getWeatherData() {
       Serial.print("HTTP error: ");
       Serial.println(httpResponseCode);
     }
-
+    // Close connection with website
     http.end();
   } else {
     Serial.println("WiFi disconnected. Reconnecting...");
@@ -317,7 +320,6 @@ void visualizeWeather(double tempF, double windspeed) {
   analogWrite(BLUE_PIN, 0);
   delay(blinkDelay);
 }
-
 
 
 ```
