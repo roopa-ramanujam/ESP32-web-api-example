@@ -1,7 +1,7 @@
 #include <secrets.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include <ArduinoJson.h>
+#include <Arduino_JSON.h>
 
 // ---------- WiFi credentials ----------
 const char* ssid = SECRET_SSID;
@@ -25,8 +25,8 @@ String weather_api = "http://api.open-meteo.com/v1/forecast?latitude="
                      + "&temperature_unit=fahrenheit";
 
 // ---------- Variables ----------
-float currentTemp = 0;
-float currentWind = 0;
+double currentTemp = 0;
+double currentWind = 0;
 unsigned long lastUpdate = 0;
 const unsigned long updateInterval = 60 * 1000; // refresh every 1 min
 
@@ -62,8 +62,6 @@ void connectToWiFi() {
     Serial.print(".");
   }
   Serial.println("\nWiFi connected!");
-  Serial.print("IP Address: ");
-  Serial.println(WiFi.localIP());
 }
 
 // ---------- Fetch weather ----------
@@ -72,36 +70,46 @@ void getWeatherData() {
   Serial.println(weather_api);
 
   if (WiFi.status() == WL_CONNECTED) {
-    WiFiClient client;
     HTTPClient http;
-    http.begin(client, weather_api);
-    int httpCode = http.GET();
+    http.begin(weather_api);
+    int httpResponseCode = http.GET();
 
-    Serial.print("HTTP code: ");
-    Serial.println(httpCode);
+    Serial.print("HTTP response code: ");
+    Serial.println(httpResponseCode);
 
-    if (httpCode > 0) {
+    // Successful response
+    if (httpResponseCode == 200) {
+      // Get the JSON payload
       String payload = http.getString();
 
-      StaticJsonDocument<1024> doc;
-      DeserializationError error = deserializeJson(doc, payload);
-      if (!error) {
-        currentTemp = doc["current_weather"]["temperature"];
-        currentWind = doc["current_weather"]["windspeed"];
+      // Parse it into a JSONVar object
+      JSONVar jsonObject = JSON.parse(payload);
 
-        Serial.print("🌡 Temp: ");
-        Serial.print(currentTemp);
-        Serial.println(" °F");
-
-        Serial.print("💨 Wind: ");
-        Serial.print(currentWind);
-        Serial.println(" mph");
-      } else {
-        Serial.println("Failed to parse JSON");
+      // Check if parsing succeeded
+      if (JSON.typeof(jsonObject) == "undefined") {
+        Serial.println("Parsing input failed!");
+        return;
       }
+
+      // Log the JSON response
+      Serial.print("raw JSON response: ");
+      Serial.println(jsonObject);
+
+      // Extract the nested values
+      currentTemp = double(jsonObject["current_weather"]["temperature"]);
+      currentWind = double(jsonObject["current_weather"]["windspeed"]);
+
+      // Print to Serial Monitor
+      Serial.print("🌡 Temperature: ");
+      Serial.print(currentTemp);
+      Serial.println(" °F");
+
+      Serial.print("💨 Wind Speed: ");
+      Serial.print(currentWind);
+      Serial.println(" mph");
     } else {
       Serial.print("HTTP error: ");
-      Serial.println(httpCode);
+      Serial.println(httpResponseCode);
     }
 
     http.end();
@@ -112,15 +120,22 @@ void getWeatherData() {
 }
 
 // ---------- LED behavior ----------
-void visualizeWeather(float tempF, float windspeed) {
+void visualizeWeather(double tempF, double windspeed) {
   // Base color by temperature
   int red = 0, green = 0, blue = 0;
-  if (tempF <= 65)       blue = 255;   // cold
-  else if (tempF <= 80)  green = 255;  // mild
-  else                   red = 255;    // hot
+
+  if (tempF <= 65) {
+    blue = 255;   // cold
+  }
+  else if (tempF <= 80) {
+    green = 255;  // mild
+  } 
+  else {
+    red = 255;    // hot
+  }
 
   // Map windspeed (0–30 mph) → blink rate (slower = calm, faster = windy)
-  int blinkDelay = constrain(map((int)windspeed, 0, 30, 800, 100), 100, 800);
+  int blinkDelay = map((int)windspeed, 0, 30, 800, 100);
 
   // On phase
   analogWrite(RED_PIN, red);
