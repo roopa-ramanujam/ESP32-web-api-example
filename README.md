@@ -1,7 +1,7 @@
 # ESP32 Web API Example
 
 # Introduction
-In this tutorial, we’re going to connect our ESP32s to WiFi, receive data from a weather API endpoint, and show it with a simple ambient display.
+In this tutorial, we’re going to connect our ESP32s to WiFi, receive data about Jacobs Hall from a weather API endpoint, and display the temperature and wind speed through a simple ambient display. We will be connecting to WiFi through the Berkeley IoT network, which is recommended for IoT (Internet of Things) devices like microcontrollers.
 
 Ingredients:
 - ESP32 with pins soldered
@@ -89,7 +89,7 @@ Copy the code below into a new Arduino sketch or download and open this example 
 #include <WiFi.h>
 #include <secrets.h>
 
-// Replace with your network credentials
+// WiFi credentials
 const char* ssid = SECRET_SSID;
 const char* password = SECRET_PASSWORD;
 
@@ -122,7 +122,7 @@ void loop() {
 
 ## Set up the secrets.h file
 
-The secrets.h file is like a password storage; 
+We will be setting up a ```secrets.h``` file, which is a separate file used to store sensitive information such as your WiFi credentials and API keys. Keeping these details in a ```secrets.h``` file helps protect your private information, especially if you share your code publicly or work in a team. It also keeps your main code cleaner and makes it easier to update your credentials without changing the core program. In software development more broadly, this idea is called secrets management: the practice of securely storing, accessing, and rotating sensitive credentials (API keys, tokens, certificates) so they’re never hard-coded or exposed. Good secrets management helps prevent unauthorized access, protects user data, and supports safer collaboration across systems and teams.
 
 Click on the three dots under the Serial toolbar and click on "New tab", name it "secrets.h", and hit "Ok"
 
@@ -145,8 +145,6 @@ Your ```secrets.h``` file is included in the WiFi test sketch with this line:
 ```cpp
 #include <secrets.h>
 ```
-
-Now the sketch can put in your password without you have abstracted your password away from the Arduino IDE!
 
 ## Run the WiFi test code
 
