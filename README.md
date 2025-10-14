@@ -15,7 +15,10 @@ Prerequisites*
 1. ESP32 pins have been soldered.
 2. You can successfully flash code to the ESP32.
 
-*If you have not completed the prerequisites, please look at [Sudhu's tutorial.](https://github.com/loopstick/ESP32_V2_Tutorial/tree/master) 
+*If you have not completed the prerequisites, please look at 
+
+1) [ESP32 Soldering guide](https://youtu.be/IPec237T18U)
+2) [Adafruit tutorial on ESP32 setup.](https://learn.adafruit.com/adafruit-esp32-feather-v2/arduino-ide-setup) 
 
 # Get the MAC Address of the ESP32
 
@@ -156,12 +159,6 @@ Compile + upload the sketch to your ESP32. You should see something like this if
 
 # Weather API example
 
-## Wire up your ESP32 with the RGB LED
-
-We will change the color of the LED and its blink rate based on the temperature and wind speed at Jacobs Hall.
-
-<img width="784" height="716" alt="image" src="https://github.com/user-attachments/assets/ef2aba43-2ff9-435e-b12e-f43985cc0a9e" />
-
 ## Set up the code
 
 Copy the code below into a new Arduino sketch or download and open this example sketch: [WeatherAPIExample.ino](https://github.com/roopa-ramanujam/ESP32-web-api-example/blob/main/WeatherAPIExample.ino)
@@ -171,15 +168,11 @@ Copy the code below into a new Arduino sketch or download and open this example 
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <Arduino_JSON.h>
+#include <Adafruit_NeoPixel.h>
 
 // ---------- WiFi credentials ----------
 const char* ssid = SECRET_SSID;
 const char* password = SECRET_PASSWORD;
-
-// ---------- Pins ----------
-const int RED_PIN   = 14;
-const int GREEN_PIN = 27;
-const int BLUE_PIN  = 33;
 
 // ---------- Location (Jacobs Hall, Berkeley) ----------
 const double latitude  = 37.876270;
@@ -199,18 +192,27 @@ double currentWind = 0;
 unsigned long lastUpdate = 0;
 const unsigned long updateInterval = 60 * 1000; // refresh every 1 min
 
+// ---------- Onboard NeoPixel ----------
+#define PIN_NEOPIXEL        0   // data pin
+#define NEOPIXEL_I2C_POWER  2   // power enable pin
+#define NUMPIXELS           1
+
+Adafruit_NeoPixel pixel(NUMPIXELS, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
+
+// ---------- Setup ----------
 void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  pinMode(RED_PIN, OUTPUT);
-  pinMode(GREEN_PIN, OUTPUT);
-  pinMode(BLUE_PIN, OUTPUT);
+  // Turn on NeoPixel power
+  pinMode(NEOPIXEL_I2C_POWER, OUTPUT);
 
   connectToWiFi();
-  getWeatherData();
+  delay(1000);
+  getWeatherData();  // initial fetch
 }
 
+// ---------- Main Loop ----------
 void loop() {
   // Update weather every 1 min
   if (millis() - lastUpdate > updateInterval) {
@@ -218,7 +220,7 @@ void loop() {
     lastUpdate = millis();
   }
 
-  // Continuously blink LED based on current wind speed
+  // Visualize current readings
   visualizeWeather(currentTemp, currentWind);
 }
 
@@ -230,60 +232,46 @@ void connectToWiFi() {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("\nWiFi connected!");
+  Serial.println("\n✅ WiFi connected!");
 }
 
-// ---------- Fetch weather ----------
+// ---------- Fetch Weather ----------
 void getWeatherData() {
   Serial.print("Requesting: ");
   Serial.println(weather_api);
 
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
-    // Open connection with website
     http.begin(weather_api);
-
-    // website tells us if data was retrieved and sent back to us successfully
     int httpResponseCode = http.GET();
 
     Serial.print("HTTP response code: ");
     Serial.println(httpResponseCode);
 
-    // Successful response
     if (httpResponseCode == 200) {
-      // Get the JSON response
       String payload = http.getString();
-
-      // Parse it into a JSONVar object
       JSONVar jsonObject = JSON.parse(payload);
 
-      // Check if parsing succeeded
       if (JSON.typeof(jsonObject) == "undefined") {
         Serial.println("Parsing input failed!");
+        http.end();
         return;
       }
 
-      // Log the JSON response
-      Serial.print("raw JSON response: ");
-      Serial.println(jsonObject);
-
-      // Extract the nested values
       currentTemp = double(jsonObject["current_weather"]["temperature"]);
       currentWind = double(jsonObject["current_weather"]["windspeed"]);
 
-      // Print to Serial Monitor
-      Serial.print("🌡 Temperature: ");
+      Serial.print("🌡 Temp: ");
       Serial.print(currentTemp);
       Serial.println(" °F");
 
-      Serial.print("💨 Wind Speed: ");
+      Serial.print("💨 Wind: ");
       Serial.print(currentWind);
       Serial.println(" mph");
     } else {
       Serial.print("HTTP error: ");
       Serial.println(httpResponseCode);
     }
-    // Close connection with website
     http.end();
   } else {
     Serial.println("WiFi disconnected. Reconnecting...");
@@ -291,37 +279,31 @@ void getWeatherData() {
   }
 }
 
-// ---------- LED behavior ----------
+// ---------- LED Visualization ----------
 void visualizeWeather(double tempF, double windspeed) {
-  // Base color by temperature
   int red = 0, green = 0, blue = 0;
 
-  if (tempF <= 65) {
-    blue = 255;   // cold
-  }
-  else if (tempF <= 80) {
-    green = 255;  // mild
-  } 
-  else {
-    red = 255;    // hot
+  // Color by temperature
+  if (tempF <= 65) {          // cold
+    blue = 255;
+  } else if (tempF <= 80) {   // mild
+    green = 255;
+  } else {                    // hot
+    red = 255;
   }
 
-  // Map windspeed (0–30 mph) → blink rate (slower = calm, faster = windy)
+  // Blink speed by windspeed (0–30 mph)
   int blinkDelay = map((int)windspeed, 0, 30, 800, 100);
 
-  // On phase
-  analogWrite(RED_PIN, red);
-  analogWrite(GREEN_PIN, green);
-  analogWrite(BLUE_PIN, blue);
+  // Blink once per loop iteration
+  pixel.setPixelColor(0, pixel.Color(red, green, blue));
+  pixel.show();
   delay(blinkDelay);
 
-  // Off phase
-  analogWrite(RED_PIN, 0);
-  analogWrite(GREEN_PIN, 0);
-  analogWrite(BLUE_PIN, 0);
+  pixel.clear();
+  pixel.show();
   delay(blinkDelay);
 }
-
 
 ```
 
@@ -333,10 +315,12 @@ Install Arduino_JSON from the libraries manager.
 
 Compile + upload the sketch. You should see something like this in the Serial monitor:
 
-<img width="1265" height="112" alt="image" src="https://github.com/user-attachments/assets/d3816618-b994-4a83-a919-15806bca8130" />
+<img width="1305" height="111" alt="image" src="https://github.com/user-attachments/assets/f246cb49-c427-46b5-bc23-f60362ddfb0b" />
 
 
-Your LED should be red, green, or blue, depending on the temperature, and blinking depending on the wind speed.
+Your onboard neopixel LED should be red, green, or blue, depending on the temperature, and blinking depending on the wind speed.
+
+https://github.com/user-attachments/assets/f5f581f2-ee5f-494a-8481-abb79408b73b
 
 That's it! You have successfully connected your ESP32 to WiFi and fetched data from a weather API endpoint.
 
@@ -363,9 +347,18 @@ Try resetting the ESP32 or adding code to print out the WiFi connection status b
 -Verify that ArduinoJson is installed and up to date (Library Manager → search “ArduinoJson” → install version 6 or newer).
 
 ## LED not lighting up
--Ensure your RGB LED is wired correctly: Common cathode → GND. Red, Green, and Blue pins each go through a 220 Ω resistor to your specified pins (14, 27, 33).
--Try testing with a simpler sketch that just lights each color individually to confirm wiring.
--Make sure your ESP32 board is selected under Tools → Board → Adafruit ESP32 Feather V2.
+-Ensure you have the Adafruit_Neopixel library installed
+
+-Ensure you are using the right Neopixel pins:
+
+```cpp
+// ---------- Onboard NeoPixel ----------
+#define PIN_NEOPIXEL        0   // data pin
+#define NEOPIXEL_I2C_POWER  2   // power enable pin
+#define NUMPIXELS           1
+
+Adafruit_NeoPixel pixel(NUMPIXELS, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
+```
 
 ## Compilation errors about missing secrets.h
 -Make sure the file name is exactly secrets.h (not .txt or saved in another folder).
