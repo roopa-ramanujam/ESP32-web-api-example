@@ -1,7 +1,7 @@
 # ESP32 Web API Example
 
 # Introduction
-In this tutorial, we’re going to connect our ESP32s to WiFi, receive data about Jacobs Hall from a weather API endpoint, and display the temperature and wind speed through a simple ambient display. We will be connecting to WiFi through the Berkeley IoT network, which is recommended for IoT (Internet of Things) devices like microcontrollers.
+In this tutorial, we’re going to connect our ESP32s to WiFi, receive data about Jacobs Hall from a weather API endpoint, and display the temperature and wind speed through a simple ambient display. We will be connecting to WiFi through the Berkeley-IoT network, which is recommended for IoT (Internet of Things) devices like microcontrollers.
 
 Ingredients:
 - ESP32 with pins soldered
@@ -15,7 +15,7 @@ Prerequisites*
 1. ESP32 pins have been soldered.
 2. You can successfully flash code to the ESP32.
 
-*If you have not completed the prerequisites, please look at [Sudhu's tutorial](https://github.com/loopstick/ESP32_V2_Tutorial/tree/master) 
+*If you have not completed the prerequisites, please look at [Sudhu's tutorial.](https://github.com/loopstick/ESP32_V2_Tutorial/tree/master) 
 
 # Get the MAC Address of the ESP32
 
@@ -330,7 +330,8 @@ Install Arduino_JSON from the libraries manager.
 
 Compile + upload the sketch. You should see something like this in the Serial monitor:
 
-<img width="1258" height="210" alt="image" src="https://github.com/user-attachments/assets/8e871777-cf16-46f0-9153-f933f553f9b0" />
+<img width="1265" height="112" alt="image" src="https://github.com/user-attachments/assets/d3816618-b994-4a83-a919-15806bca8130" />
+
 
 Your LED should be red, green, or blue, depending on the temperature, and blinking depending on the wind speed.
 
@@ -367,11 +368,123 @@ Try resetting the ESP32 or adding code to print out the WiFi connection status b
 -Make sure the file name is exactly secrets.h (not .txt or saved in another folder).
 -It must be in the same sketch folder as your .ino file.
 
-# Advanced: Using APIs with API keys
+# Advanced: Using API keys
+
+Sometimes, APIs require an extra step to authenticate the person requesting the information. This is usually in the form of an API key that you sign up for on the API's website. 
+
+API keys can be added to an API request in a variety of ways:
+- in the URL
+- as a header
+
+This air quality example requires an API key in the header of the request.
+
+```cpp
+#include <secrets.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <Arduino_JSON.h>
+
+// ---------- WiFi credentials ----------
+const char* ssid = SECRET_SSID;
+const char* password = SECRET_PASSWORD;
+
+// ---------- API credentials ----------
+const char* api_key = SECRET_API_KEY;
+
+// ---------- OpenAQ API v3 ----------
+// Ozone sensor in Berkeley
+String air_api = "https://api.openaq.org/v3/sensors/3917/measurements?limit=1";
+
+// ---------- Variables ----------
+float o3Value = 0;
+String o3Units = "";
+unsigned long lastUpdate = 0;
+const unsigned long updateInterval = 60 * 1000; // every 1 min
+
+void setup() {
+  Serial.begin(115200);
+  delay(1000);
+
+  connectToWiFi();
+  getAirData();
+}
+
+void loop() {
+  if (millis() - lastUpdate > updateInterval) {
+    getAirData();
+    lastUpdate = millis();
+  }
+}
+
+// ---------- WiFi ----------
+void connectToWiFi() {
+  Serial.println("Connecting to WiFi...");
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWiFi connected!");
+}
+
+// ---------- Fetch Air Quality ----------
+void getAirData() {
+  Serial.print("Requesting: ");
+  Serial.println(air_api);
+
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    http.begin(air_api);
+
+    // Add API key header
+    http.addHeader("X-API-Key", api_key);
+    http.addHeader("accept", "application/json");
+
+    int httpResponseCode = http.GET();
+    Serial.print("HTTP response code: ");
+    Serial.println(httpResponseCode);
+
+    if (httpResponseCode == 200) {
+      String payload = http.getString();
+      JSONVar jsonObject = JSON.parse(payload);
+
+      if (JSON.typeof(jsonObject) == "undefined") {
+        Serial.println("Parsing failed!");
+        http.end();
+        return;
+      }
+      // Log the JSON response
+      Serial.print("raw JSON response: ");
+      Serial.println(jsonObject);
+
+      // jsonObject["results"] is an array. Since we specified limit=1 in the API URL above, we know that there is only one entry in the array and we can access it with ["results"][0]
+      o3Value = double(jsonObject["results"][0]["value"]);
+      o3Units = String(jsonObject["results"][0]["parameter"]["units"]);
+
+      Serial.print("o3 Value: ");
+      // Print the value with 3 decimal places
+      Serial.print(o3Value, 3);
+      Serial.print(" ");
+      Serial.println(o3Units);
+    } else {
+      Serial.print("HTTP error: ");
+      Serial.println(httpResponseCode);
+    }
+
+    http.end();
+  } else {
+    Serial.println("WiFi disconnected. Reconnecting...");
+    WiFi.reconnect();
+  }
+}
+
+```
 
 # Additional Resources/Reading
 
 [HTTP response code reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status)
+
+[List of public APIs](https://github.com/public-apis/public-apis?tab=readme-ov-file)
 
 
 
