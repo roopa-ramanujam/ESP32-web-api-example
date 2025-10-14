@@ -166,10 +166,10 @@ We will change the color of the LED and its blink rate based on the temperature 
 Copy the code below into a new Arduino sketch or download and open this example sketch: [WeatherAPIExample.ino](https://github.com/roopa-ramanujam/ESP32-web-api-example/blob/main/WeatherAPIExample.ino)
 
 ```cpp
-#include <arduino_secrets.h>
+#include <secrets.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include <ArduinoJson.h>
+#include <Arduino_JSON.h>
 
 // ---------- WiFi credentials ----------
 const char* ssid = SECRET_SSID;
@@ -193,8 +193,8 @@ String weather_api = "http://api.open-meteo.com/v1/forecast?latitude="
                      + "&temperature_unit=fahrenheit";
 
 // ---------- Variables ----------
-float currentTemp = 0;
-float currentWind = 0;
+double currentTemp = 0;
+double currentWind = 0;
 unsigned long lastUpdate = 0;
 const unsigned long updateInterval = 60 * 1000; // refresh every 1 min
 
@@ -230,8 +230,6 @@ void connectToWiFi() {
     Serial.print(".");
   }
   Serial.println("\nWiFi connected!");
-  Serial.print("IP Address: ");
-  Serial.println(WiFi.localIP());
 }
 
 // ---------- Fetch weather ----------
@@ -240,36 +238,46 @@ void getWeatherData() {
   Serial.println(weather_api);
 
   if (WiFi.status() == WL_CONNECTED) {
-    WiFiClient client;
     HTTPClient http;
-    http.begin(client, weather_api);
-    int httpCode = http.GET();
+    http.begin(weather_api);
+    int httpResponseCode = http.GET();
 
-    Serial.print("HTTP code: ");
-    Serial.println(httpCode);
+    Serial.print("HTTP response code: ");
+    Serial.println(httpResponseCode);
 
-    if (httpCode > 0) {
+    // Successful response
+    if (httpResponseCode == 200) {
+      // Get the JSON payload
       String payload = http.getString();
 
-      StaticJsonDocument<1024> doc;
-      DeserializationError error = deserializeJson(doc, payload);
-      if (!error) {
-        currentTemp = doc["current_weather"]["temperature"];
-        currentWind = doc["current_weather"]["windspeed"];
+      // Parse it into a JSONVar object
+      JSONVar jsonObject = JSON.parse(payload);
 
-        Serial.print("🌡 Temp: ");
-        Serial.print(currentTemp);
-        Serial.println(" °F");
-
-        Serial.print("💨 Wind: ");
-        Serial.print(currentWind);
-        Serial.println(" mph");
-      } else {
-        Serial.println("Failed to parse JSON");
+      // Check if parsing succeeded
+      if (JSON.typeof(jsonObject) == "undefined") {
+        Serial.println("Parsing input failed!");
+        return;
       }
+
+      // Log the JSON response
+      Serial.print("raw JSON response: ");
+      Serial.println(jsonObject);
+
+      // Extract the nested values
+      currentTemp = double(jsonObject["current_weather"]["temperature"]);
+      currentWind = double(jsonObject["current_weather"]["windspeed"]);
+
+      // Print to Serial Monitor
+      Serial.print("🌡 Temperature: ");
+      Serial.print(currentTemp);
+      Serial.println(" °F");
+
+      Serial.print("💨 Wind Speed: ");
+      Serial.print(currentWind);
+      Serial.println(" mph");
     } else {
       Serial.print("HTTP error: ");
-      Serial.println(httpCode);
+      Serial.println(httpResponseCode);
     }
 
     http.end();
@@ -280,15 +288,22 @@ void getWeatherData() {
 }
 
 // ---------- LED behavior ----------
-void visualizeWeather(float tempF, float windspeed) {
+void visualizeWeather(double tempF, double windspeed) {
   // Base color by temperature
   int red = 0, green = 0, blue = 0;
-  if (tempF <= 65)       blue = 255;   // cold
-  else if (tempF <= 80)  green = 255;  // mild
-  else                   red = 255;    // hot
+
+  if (tempF <= 65) {
+    blue = 255;   // cold
+  }
+  else if (tempF <= 80) {
+    green = 255;  // mild
+  } 
+  else {
+    red = 255;    // hot
+  }
 
   // Map windspeed (0–30 mph) → blink rate (slower = calm, faster = windy)
-  int blinkDelay = constrain(map((int)windspeed, 0, 30, 800, 100), 100, 800);
+  int blinkDelay = map((int)windspeed, 0, 30, 800, 100);
 
   // On phase
   analogWrite(RED_PIN, red);
@@ -302,6 +317,8 @@ void visualizeWeather(float tempF, float windspeed) {
   analogWrite(BLUE_PIN, 0);
   delay(blinkDelay);
 }
+
+
 
 ```
 
@@ -322,11 +339,42 @@ That's it! You have successfully connected your ESP32 to WiFi and fetched data f
 
 # Troubleshooting
 
-1. 
+## WiFi not connecting (stuck on "Connecting to WiFi...")
+- Double-check that your ESP32’s MAC address is correctly registered on the Berkeley-IoT portal
+- Make sure you are connecting to "Berkeley-IoT" and not "eduroam" or "CalVisitor".
+- Verify that your secrets.h file has the correct SSID ("Berkeley-IoT") and the exact password you copied from the IoT registration page (no extra spaces or quotation mark errors).
+- If connection still fails, open Tools → Serial Monitor and press the RESET button on your ESP32 to see fresh connection logs.
+
+## HTTP Error Code -1 or 400/401/403
+This usually means the ESP32 couldn’t reach the weather API. Try pasting this link into your web browser: http://api.open-meteo.com/v1/forecast?latitude=37.876270&longitude=-122.258499&current_weather=true&temperature_unit=fahrenheit
+
+If you see a response that looks like this, then the API endpoint is not the issue and it has something to do with your code trying to connect to the endpoint.
+
+<img width="1564" height="128" alt="image" src="https://github.com/user-attachments/assets/f098db12-0fa5-4306-99f7-0182cfcb7d9f" />
+
+Try resetting the ESP32 or adding code to print out the WiFi connection status before attempting to send the HTTP GET request (you can ask ChatGPT for help with this).
+
+## Serial Monitor shows “Failed to parse JSON”
+-This means the weather API response didn’t match the expected format.
+-Try printing the full API response using Serial.println(payload); right before parsing — this helps confirm whether the API returned valid JSON or an error message.
+-Verify that ArduinoJson is installed and up to date (Library Manager → search “ArduinoJson” → install version 6 or newer).
+
+## LED not lighting up
+-Ensure your RGB LED is wired correctly: Common cathode → GND. Red, Green, and Blue pins each go through a 220 Ω resistor to your specified pins (14, 27, 33).
+-Try testing with a simpler sketch that just lights each color individually to confirm wiring.
+-Make sure your ESP32 board is selected under Tools → Board → Adafruit ESP32 Feather V2.
+
+## Compilation errors about missing secrets.h
+-Make sure the file name is exactly secrets.h (not .txt or saved in another folder).
+-It must be in the same sketch folder as your .ino file.
 
 # Advanced: Using APIs with API keys
 
 # Additional Resources/Reading
+
+[HTTP response code reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status)
+
+
 
 
 
