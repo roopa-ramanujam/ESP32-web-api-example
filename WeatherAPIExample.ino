@@ -2,15 +2,11 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <Arduino_JSON.h>
+#include <Adafruit_NeoPixel.h>
 
 // ---------- WiFi credentials ----------
 const char* ssid = SECRET_SSID;
 const char* password = SECRET_PASSWORD;
-
-// ---------- Pins ----------
-const int RED_PIN   = 14;
-const int GREEN_PIN = 27;
-const int BLUE_PIN  = 33;
 
 // ---------- Location (Jacobs Hall, Berkeley) ----------
 const double latitude  = 37.876270;
@@ -30,18 +26,27 @@ double currentWind = 0;
 unsigned long lastUpdate = 0;
 const unsigned long updateInterval = 60 * 1000; // refresh every 1 min
 
+// ---------- Onboard NeoPixel ----------
+#define PIN_NEOPIXEL        0   // data pin
+#define NEOPIXEL_I2C_POWER  2   // power enable pin
+#define NUMPIXELS           1
+
+Adafruit_NeoPixel pixel(NUMPIXELS, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
+
+// ---------- Setup ----------
 void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  pinMode(RED_PIN, OUTPUT);
-  pinMode(GREEN_PIN, OUTPUT);
-  pinMode(BLUE_PIN, OUTPUT);
+  // Turn on NeoPixel power
+  pinMode(NEOPIXEL_I2C_POWER, OUTPUT);
 
   connectToWiFi();
-  getWeatherData();
+  delay(1000);
+  getWeatherData();  // initial fetch
 }
 
+// ---------- Main Loop ----------
 void loop() {
   // Update weather every 1 min
   if (millis() - lastUpdate > updateInterval) {
@@ -49,7 +54,7 @@ void loop() {
     lastUpdate = millis();
   }
 
-  // Continuously blink LED based on current wind speed
+  // Visualize current readings
   visualizeWeather(currentTemp, currentWind);
 }
 
@@ -61,10 +66,10 @@ void connectToWiFi() {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("\nWiFi connected!");
+  Serial.println("\n✅ WiFi connected!");
 }
 
-// ---------- Fetch weather ----------
+// ---------- Fetch Weather ----------
 void getWeatherData() {
   Serial.print("Requesting: ");
   Serial.println(weather_api);
@@ -79,6 +84,7 @@ void getWeatherData() {
 
     // Successful response
     if (httpResponseCode == 200) {
+
       // Get the JSON payload
       String payload = http.getString();
 
@@ -88,6 +94,7 @@ void getWeatherData() {
       // Check if parsing succeeded
       if (JSON.typeof(jsonObject) == "undefined") {
         Serial.println("Parsing input failed!");
+        http.end();
         return;
       }
 
@@ -99,19 +106,17 @@ void getWeatherData() {
       currentTemp = double(jsonObject["current_weather"]["temperature"]);
       currentWind = double(jsonObject["current_weather"]["windspeed"]);
 
-      // Print to Serial Monitor
-      Serial.print("🌡 Temperature: ");
+      Serial.print("🌡 Temp: ");
       Serial.print(currentTemp);
       Serial.println(" °F");
 
-      Serial.print("💨 Wind Speed: ");
+      Serial.print("💨 Wind: ");
       Serial.print(currentWind);
       Serial.println(" mph");
     } else {
       Serial.print("HTTP error: ");
       Serial.println(httpResponseCode);
     }
-
     http.end();
   } else {
     Serial.println("WiFi disconnected. Reconnecting...");
@@ -119,33 +124,28 @@ void getWeatherData() {
   }
 }
 
-// ---------- LED behavior ----------
+// ---------- LED Visualization ----------
 void visualizeWeather(double tempF, double windspeed) {
-  // Base color by temperature
   int red = 0, green = 0, blue = 0;
 
-  if (tempF <= 65) {
-    blue = 255;   // cold
-  }
-  else if (tempF <= 80) {
-    green = 255;  // mild
-  } 
-  else {
-    red = 255;    // hot
+  // Color by temperature
+  if (tempF <= 65) {          // cold
+    blue = 255;
+  } else if (tempF <= 80) {   // mild
+    green = 255;
+  } else {                    // hot
+    red = 255;
   }
 
   // Map windspeed (0–30 mph) → blink rate (slower = calm, faster = windy)
   int blinkDelay = map((int)windspeed, 0, 30, 800, 100);
 
-  // On phase
-  analogWrite(RED_PIN, red);
-  analogWrite(GREEN_PIN, green);
-  analogWrite(BLUE_PIN, blue);
+  // Blink once per loop iteration
+  pixel.setPixelColor(0, pixel.Color(red, green, blue));
+  pixel.show();
   delay(blinkDelay);
 
-  // Off phase
-  analogWrite(RED_PIN, 0);
-  analogWrite(GREEN_PIN, 0);
-  analogWrite(BLUE_PIN, 0);
+  pixel.clear();
+  pixel.show();
   delay(blinkDelay);
 }
