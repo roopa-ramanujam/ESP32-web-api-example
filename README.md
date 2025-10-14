@@ -78,7 +78,8 @@ The 'xx:xx:xx:xx:xx:xx' is your ESP32 MAC address. Copy/save it somewhere, you w
 
 You should now see your ESP32 in the list of registered devices.
 
-<img width="1089" height="332" alt="image" src="https://github.com/user-attachments/assets/794fb8b0-6a52-4900-a274-1ce17a0a4d54" />
+<img width="2178" height="664" alt="image" src="https://github.com/user-attachments/assets/a97c2a07-1793-4588-bba4-e4ae7f7788c6" />
+
 
 
 # Test Berkeley-IoT WiFi connection
