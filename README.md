@@ -324,10 +324,9 @@ void visualizeWeather(double tempF, double windspeed) {
 
 Create another ```secrets.h``` file for this sketch with your Berkeley-IoT credentials, just like in the WiFi test sketch.
 
-Install ArduinoJson from the libraries manager.
+Install Arduino_JSON from the libraries manager.
 
-<img width="273" height="324" alt="image" src="https://github.com/user-attachments/assets/b107d57d-9fcb-4b1c-b7a4-c9eabaab30f5" />
-
+<img width="257" height="300" alt="image" src="https://github.com/user-attachments/assets/d3c9b893-6b18-4547-a4d5-ff78e39e74d3" />
 
 Compile + upload the sketch. You should see something like this in the Serial monitor:
 
