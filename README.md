@@ -21,7 +21,7 @@ Prerequisites*
 
 Each ESP32 device has a unique MAC address identifier, which we need to connect to the Berkeley-IoT WiFi network. 
 
-To get your device MAC address, copy the code below into a new Arduino sketch or download and open this example sketch: [GetESP32MACAddress.ino](https://github.com/roopa-ramanujam/ESP32-web-api-example/blob/main/GetESP32MACAddress.ino)
+To get your device MAC address, upload the code below into your ESP32 or download and upload this example sketch: [GetESP32MACAddress.ino](https://github.com/roopa-ramanujam/ESP32-web-api-example/blob/main/GetESP32MACAddress.ino)
 
 ```cpp
 /*
