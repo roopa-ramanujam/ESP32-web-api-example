@@ -4,21 +4,15 @@
 In this tutorial, we’re going to connect our ESP32s to WiFi, receive data about Jacobs Hall from a weather API endpoint, and display the temperature and wind speed through a simple ambient display. We will be connecting to WiFi through the Berkeley-IoT network, which is recommended for IoT (Internet of Things) devices like microcontrollers.
 
 Ingredients:
-- ESP32 with pins soldered
+- ESP32
 - USB-C cable
 - Breadboard
-- RGB LED (1)
-- 220 ohm resistors (3)
-- Jumper wires
 
 Prerequisites*
-1. ESP32 pins have been soldered.
-2. You can successfully flash code to the ESP32.
 
-*If you have not completed the prerequisites, please look at 
+You can successfully flash code to the ESP32. Try out the Blink example sketch: File > Examples > Basics > Blink.
 
-1) [ESP32 Soldering guide](https://youtu.be/IPec237T18U)
-2) [Adafruit tutorial on ESP32 setup.](https://learn.adafruit.com/adafruit-esp32-feather-v2/arduino-ide-setup) 
+*If you have not completed the prerequisites, please look at [Adafruit tutorial on ESP32 setup.](https://learn.adafruit.com/adafruit-esp32-feather-v2/arduino-ide-setup) 
 
 # Get the MAC Address of the ESP32
 
