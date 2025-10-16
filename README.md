@@ -161,6 +161,11 @@ In the Arduino IDE, install Arduino_JSON from the libraries manager.
 
 <img width="257" height="300" alt="image" src="https://github.com/user-attachments/assets/d3c9b893-6b18-4547-a4d5-ff78e39e74d3" />
 
+Also install the Adafruit Neopixel library.
+
+<img width="385" height="270" alt="image" src="https://github.com/user-attachments/assets/e5488fbd-7982-4e81-bbfe-007fbbaebc8d" />
+
+
 Copy the code below into a new Arduino sketch or download and open this example sketch: [WeatherAPIExample.ino](https://github.com/roopa-ramanujam/ESP32-web-api-example/blob/main/WeatherAPIExample.ino)
 
 Create another ```secrets.h``` file for this sketch with your Berkeley-IoT credentials, just like in the WiFi test sketch.
