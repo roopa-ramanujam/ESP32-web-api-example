@@ -77,7 +77,7 @@ You should now see your ESP32 in the list of registered devices.
 
 <img width="2178" height="664" alt="image" src="https://github.com/user-attachments/assets/a97c2a07-1793-4588-bba4-e4ae7f7788c6" />
 
-## *IMPORTANT* it may take some time for your device to work with the network. Wait ~15 minutes before proceeding to the next step!
+*IMPORTANT* it may take up to 15 minutes for your device to work with the network.
 
 
 
@@ -353,6 +353,8 @@ If you see a response that looks like this, then the API endpoint is not the iss
 <img width="1564" height="128" alt="image" src="https://github.com/user-attachments/assets/f098db12-0fa5-4306-99f7-0182cfcb7d9f" />
 
 Try resetting the ESP32 or adding code to print out the WiFi connection status before attempting to send the HTTP GET request (you can ask ChatGPT for help with this).
+
+The Berkeley-IoT network connection can be weak/unreliable at times. If you've tried the above steps and you're still getting the -1 error, wait ~30 minutes and then reset the ESP32 and try again.
 
 ## Serial Monitor shows “Failed to parse JSON”
 -This means the weather API response didn’t match the expected format.
