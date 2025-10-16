@@ -1,7 +1,20 @@
 # ESP32 Web API Example
 
 [Get MAC address](README.md#get-mac-address-of-esp32)
+
 [Register ESP32 with Berkeley-IoT network](README.md#register-esp32-with-berkeley-iot-network) 
+
+[Test Berkeley-IoT WiFi connection](README.md#test-berkeley-iot-wifi-connection) 
+
+[Set up secrets.h file](README.md#set-up-secrets.h-file) 
+
+[Run WiFi test code](README.md#run-wifi-test-code) 
+
+[Weather API example](README.md#weather-api-example) 
+
+[Troubleshooting](README.md#troubleshooting) 
+
+[Advanced - Using API keys](README.md#advanced-using-api-keys) 
 
 # Introduction #
 In this tutorial, we’re going to connect our ESP32s to WiFi, receive data about Jacobs Hall from a weather API endpoint, and display the temperature and wind speed through a simple ambient display. We will be connecting to WiFi through the Berkeley-IoT network, which is recommended for IoT (Internet of Things) devices like microcontrollers.
@@ -84,7 +97,7 @@ You should now see your ESP32 in the list of registered devices.
 
 
 
-# Test Berkeley-IoT WiFi connection
+# Test Berkeley-IoT WiFi connection #
 
 Copy the code below into a new Arduino sketch or download and open this example sketch: [WiFiTest.ino](https://github.com/roopa-ramanujam/ESP32-web-api-example/blob/main/WiFiTest.ino)
 
@@ -125,7 +138,7 @@ void loop() {
 }
 ```
 
-## Set up the secrets.h file
+## Set up secrets.h file ##
 
 We will be setting up a ```secrets.h``` file, which is a separate file used to store sensitive information such as your WiFi credentials and API keys. Keeping these details in a ```secrets.h``` file helps protect your private information, especially if you share your code publicly or work in a team. It also keeps your main code cleaner and makes it easier to update your credentials without changing the core program. In software development more broadly, this idea is called secrets management: the practice of securely storing, accessing, and rotating sensitive credentials (API keys, tokens, certificates) so they’re never hard-coded or exposed. Good secrets management helps prevent unauthorized access, protects user data, and supports safer collaboration across systems and teams.
 
@@ -151,14 +164,14 @@ Your ```secrets.h``` file is included in the WiFi test sketch with this line:
 #include <secrets.h>
 ```
 
-## Run the WiFi test code
+## Run WiFi test code ##
 
 Now, compile + upload the sketch to your ESP32. You should see something like this if the WiFi successfully connects:
 
 <img width="342" height="55" alt="image" src="https://github.com/user-attachments/assets/ad6dd697-186d-49d3-b129-499b81a956d4" />
 
 
-# Weather API example
+# Weather API example # 
 
 ## Set up the code
 
@@ -340,7 +353,7 @@ https://github.com/user-attachments/assets/f5f581f2-ee5f-494a-8481-abb79408b73b
 
 That's it! You have successfully connected your ESP32 to WiFi and fetched data from a weather API endpoint.
 
-# Troubleshooting
+# Troubleshooting #
 
 ## WiFi not connecting (stuck on "Connecting to WiFi...")
 - Double-check that your ESP32’s MAC address is correctly registered on the Berkeley-IoT portal
@@ -399,7 +412,7 @@ Adafruit_NeoPixel pixel(NUMPIXELS, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
 
 -It must be in the same sketch folder as your .ino file.
 
-# Advanced: Using API keys
+# Advanced - Using API keys #
 
 Sometimes, APIs require an extra step to authenticate the person requesting the information. This is usually in the form of an API key that you sign up for on the website of the resource you're trying to access. 
 
