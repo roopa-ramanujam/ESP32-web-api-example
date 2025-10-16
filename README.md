@@ -1,6 +1,8 @@
 # ESP32 Web API Example
 
-# Introduction
+[Get MAC address](README.md#get-mac-address-of-esp32)
+
+# Introduction #
 In this tutorial, we’re going to connect our ESP32s to WiFi, receive data about Jacobs Hall from a weather API endpoint, and display the temperature and wind speed through a simple ambient display. We will be connecting to WiFi through the Berkeley-IoT network, which is recommended for IoT (Internet of Things) devices like microcontrollers.
 
 Ingredients:
@@ -14,7 +16,7 @@ You can successfully flash code to the ESP32. Try out the Blink example sketch: 
 
 *If you have not completed the prerequisites, please look at [Adafruit tutorial on ESP32 setup.](https://learn.adafruit.com/adafruit-esp32-feather-v2/arduino-ide-setup) 
 
-# Get the MAC Address of the ESP32
+# Get MAC Address of ESP32 #
 
 Each ESP32 device has a unique MAC address identifier, which we need to connect to the Berkeley-IoT WiFi network. 
 
