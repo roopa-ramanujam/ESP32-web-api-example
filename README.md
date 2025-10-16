@@ -246,7 +246,10 @@ void getWeatherData() {
 
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
+    // begin connection with endpoint
     http.begin(weather_api);
+
+    //send GET request
     int httpResponseCode = http.GET();
 
     Serial.print("HTTP response code: ");
@@ -255,10 +258,10 @@ void getWeatherData() {
     // Successful response
     if (httpResponseCode == 200) {
 
-      // Get the JSON payload
+      // Get the JSON String payload
       String payload = http.getString();
 
-      // Parse it into a JSONVar object
+      // Parse it into a JSONVar object so we can extract values
       JSONVar jsonObject = JSON.parse(payload);
 
       // Check if parsing succeeded
@@ -268,7 +271,7 @@ void getWeatherData() {
         return;
       }
 
-      // Log the JSON response
+      // Log the JSON object
       Serial.print("raw JSON response: ");
       Serial.println(jsonObject);
 
@@ -320,7 +323,6 @@ void visualizeWeather(double tempF, double windspeed) {
   delay(blinkDelay);
 }
 
-
 ```
 
 You should see something like this in the Serial monitor:
@@ -354,8 +356,10 @@ Try resetting the ESP32 or adding code to print out the WiFi connection status b
 
 ## Serial Monitor shows “Failed to parse JSON”
 -This means the weather API response didn’t match the expected format.
+
 -Try printing the full API response using Serial.println(payload); right before parsing — this helps confirm whether the API returned valid JSON or an error message.
--Verify that ArduinoJson is installed and up to date (Library Manager → search “ArduinoJson” → install version 6 or newer).
+
+-Verify that Arduino_JSON is installed and up to date (Library Manager → search “Arduino_JSON” → install version 6 or newer).
 
 ## LED not lighting up
 -Ensure you have the Adafruit_Neopixel library installed
@@ -373,17 +377,18 @@ Adafruit_NeoPixel pixel(NUMPIXELS, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
 
 ## Compilation errors about missing secrets.h
 -Make sure the file name is exactly secrets.h (not .txt or saved in another folder).
+
 -It must be in the same sketch folder as your .ino file.
 
 # Advanced: Using API keys
 
-Sometimes, APIs require an extra step to authenticate the person requesting the information. This is usually in the form of an API key that you sign up for on the API's website. 
+Sometimes, APIs require an extra step to authenticate the person requesting the information. This is usually in the form of an API key that you sign up for on the website of the resource you're trying to access. 
 
 API keys can be added to an API request in a variety of ways:
 - in the URL
 - as a header
 
-This air quality example requires an API key in the header of the request.
+This air quality API example requires an API key in the header of the request.
 
 ```cpp
 #include <secrets.h>
