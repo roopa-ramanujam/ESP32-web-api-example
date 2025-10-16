@@ -1,6 +1,7 @@
 # ESP32 Web API Example
 
 [Get MAC address](README.md#get-mac-address-of-esp32)
+[Register ESP32 with Berkeley-IoT network](README.md#register-esp32-with-berkeley-iot-network) 
 
 # Introduction #
 In this tutorial, we’re going to connect our ESP32s to WiFi, receive data about Jacobs Hall from a weather API endpoint, and display the temperature and wind speed through a simple ambient display. We will be connecting to WiFi through the Berkeley-IoT network, which is recommended for IoT (Internet of Things) devices like microcontrollers.
@@ -65,7 +66,7 @@ In the Serial monitor, you should see a line printed that looks like this:
 
 The 'xx:xx:xx:xx:xx:xx' is your ESP32 MAC address. Copy/save it somewhere, you will need it for the next step.
 
-# Register your ESP32 with the Berkeley-IoT network
+# Register ESP32 with Berkeley-IoT network #
 
 1. Go to https://wifi-keys.berkeley.edu/.
 2. Click on "Create device".
