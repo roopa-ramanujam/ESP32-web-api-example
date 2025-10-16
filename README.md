@@ -66,7 +66,7 @@ The 'xx:xx:xx:xx:xx:xx' is your ESP32 MAC address. Copy/save it somewhere, you w
 # Register your ESP32 with the Berkeley-IoT network
 
 1. Go to https://wifi-keys.berkeley.edu/.
-2. Click on "Manage devices" > "Create New".
+2. Click on "Create device".
 3. Paste in the MAC address from the previous step. Give your device a descriptive name, like "Roopa's ESP32".
 4. *VERY IMPORTANT*: Copy/save the "New password" string that's been generated for you. You won't be able to see this password again, and you need it to connect your ESP32 to WiFi.
 5. Click "Save device"
