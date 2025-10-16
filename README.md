@@ -348,13 +348,27 @@ That's it! You have successfully connected your ESP32 to WiFi and fetched data f
 ## HTTP Error Code -1 or 400/401/403
 This usually means the ESP32 couldn’t reach the weather API. Try pasting this link into your web browser: http://api.open-meteo.com/v1/forecast?latitude=37.876270&longitude=-122.258499&current_weather=true&temperature_unit=fahrenheit
 
-If you see a response that looks like this, then the API endpoint is not the issue and it has something to do with your code trying to connect to the endpoint.
+If you see a response in the browser that looks like this, then the API endpoint is not the issue and it has something to do with your code trying to connect to the endpoint.
 
 <img width="1564" height="128" alt="image" src="https://github.com/user-attachments/assets/f098db12-0fa5-4306-99f7-0182cfcb7d9f" />
 
-Try resetting the ESP32 or adding code to print out the WiFi connection status before attempting to send the HTTP GET request (you can ask ChatGPT for help with this).
+Try resetting the ESP32. 
 
-The Berkeley-IoT network connection can be weak/unreliable at times. If you've tried the above steps and you're still getting the -1 error, wait ~30 minutes and then reset the ESP32 and try again.
+The Berkeley-IoT network connection can be weak/unreliable at times. If you've tried the above steps and you're still getting the -1 error, wait ~30 minutes and then reset the ESP32 and try again. You can also try using your phone hotspot (below).
+
+## Use your phone hotspot 
+
+You can also use your phone hotspot as the WiFi source for ESP32. 
+
+1. Turn on the hotspot
+2. Update the SSID and password in secrets.h with the name of the hotspot network and the password.
+3. Change weather_api to https: 
+
+<img width="510" height="59" alt="image" src="https://github.com/user-attachments/assets/386ff3d5-19e7-430d-a1ce-34d4414bd1a5" />
+
+
+
+
 
 ## Serial Monitor shows “Failed to parse JSON”
 -This means the weather API response didn’t match the expected format.
