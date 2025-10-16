@@ -14,6 +14,8 @@
 
 [Troubleshooting](README.md#troubleshooting) 
 
+[Using your phone hotspot instead of Berkeley-IoT](README.md#using-your-phone-hotspot-instead-of-berkeley-iot) 
+
 [Advanced - Using API keys](README.md#advanced-using-api-keys) 
 
 # Introduction #
@@ -372,9 +374,9 @@ Try resetting the ESP32.
 
 The Berkeley-IoT network connection can be weak/unreliable at times. If you've tried the above steps and you're still getting the -1 error, wait ~30 minutes and then reset the ESP32 and try again. You can also try using your phone hotspot (below).
 
-## Use your phone hotspot 
+# Using your phone hotspot instead of Berkeley-IoT #
 
-You can also use your phone hotspot as the WiFi source for ESP32. 
+You can also use your phone hotspot instead of Berkeley-IoT. 
 
 1. Turn on the hotspot
 2. Update the SSID and password in secrets.h with the name of the hotspot network and the password.
