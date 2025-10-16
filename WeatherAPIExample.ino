@@ -21,14 +21,14 @@ String weather_api = "http://api.open-meteo.com/v1/forecast?latitude="
                      + "&temperature_unit=fahrenheit";
 
 // ---------- Variables ----------
-double currentTemp = 0;
+double currentTemp = -1;  // ⭐ start as invalid
 double currentWind = 0;
 unsigned long lastUpdate = 0;
 const unsigned long updateInterval = 60 * 1000; // refresh every 1 min
 
 // ---------- Onboard NeoPixel ----------
-#define PIN_NEOPIXEL        0   // data pin
-#define NEOPIXEL_I2C_POWER  2   // power enable pin
+#define PIN_NEOPIXEL        0
+#define NEOPIXEL_I2C_POWER  2
 #define NUMPIXELS           1
 
 Adafruit_NeoPixel pixel(NUMPIXELS, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
@@ -38,8 +38,12 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  // Turn on NeoPixel power
   pinMode(NEOPIXEL_I2C_POWER, OUTPUT);
+  digitalWrite(NEOPIXEL_I2C_POWER, HIGH); // ⭐ ensure power enabled
+
+  pixel.begin();
+  pixel.clear();
+  pixel.show();
 
   connectToWiFi();
   delay(1000);
@@ -48,14 +52,18 @@ void setup() {
 
 // ---------- Main Loop ----------
 void loop() {
-  // Update weather every 1 min
   if (millis() - lastUpdate > updateInterval) {
     getWeatherData();
     lastUpdate = millis();
   }
 
-  // Visualize current readings
-  visualizeWeather(currentTemp, currentWind);
+  // ⭐ Only show light if temperature is valid
+  if (currentTemp != -1) {
+    visualizeWeather(currentTemp, currentWind);
+  } else {
+    pixel.clear();
+    pixel.show(); // keep LED off when no valid data
+  }
 }
 
 // ---------- WiFi Connection ----------
@@ -82,45 +90,36 @@ void getWeatherData() {
     Serial.print("HTTP response code: ");
     Serial.println(httpResponseCode);
 
-    // Successful response
     if (httpResponseCode == 200) {
-
-      // Get the JSON payload
       String payload = http.getString();
-
-      // Parse it into a JSONVar object
       JSONVar jsonObject = JSON.parse(payload);
 
-      // Check if parsing succeeded
       if (JSON.typeof(jsonObject) == "undefined") {
         Serial.println("Parsing input failed!");
+        currentTemp = -1;  // ⭐ invalidate reading
         http.end();
         return;
       }
 
-      // Log the JSON response
-      Serial.print("raw JSON response: ");
-      Serial.println(jsonObject);
-
-      // Extract the nested values
       currentTemp = double(jsonObject["current_weather"]["temperature"]);
       currentWind = double(jsonObject["current_weather"]["windspeed"]);
 
       Serial.print("🌡 Temp: ");
       Serial.print(currentTemp);
       Serial.println(" °F");
-
       Serial.print("💨 Wind: ");
       Serial.print(currentWind);
       Serial.println(" mph");
     } else {
       Serial.print("HTTP error: ");
       Serial.println(httpResponseCode);
+      currentTemp = -1;  // ⭐ invalidate reading
     }
     http.end();
   } else {
     Serial.println("WiFi disconnected. Reconnecting...");
     WiFi.reconnect();
+    currentTemp = -1;  // ⭐ invalidate reading
   }
 }
 
@@ -128,19 +127,16 @@ void getWeatherData() {
 void visualizeWeather(double tempF, double windspeed) {
   int red = 0, green = 0, blue = 0;
 
-  // Color by temperature
-  if (tempF <= 65) {          // cold
+  if (tempF <= 65) {
     blue = 255;
-  } else if (tempF <= 80) {   // mild
+  } else if (tempF <= 80) {
     green = 255;
-  } else {                    // hot
+  } else {
     red = 255;
   }
 
-  // Map windspeed (0–30 mph) → blink rate (slower = calm, faster = windy)
   int blinkDelay = map((int)windspeed, 0, 30, 800, 100);
 
-  // Blink once per loop iteration
   pixel.setPixelColor(0, pixel.Color(red, green, blue));
   pixel.show();
   delay(blinkDelay);
