@@ -77,6 +77,8 @@ You should now see your ESP32 in the list of registered devices.
 
 <img width="2178" height="664" alt="image" src="https://github.com/user-attachments/assets/a97c2a07-1793-4588-bba4-e4ae7f7788c6" />
 
+## *IMPORTANT* it may take some time for your device to work with the network. Wait ~15 minutes before proceeding to the next step!
+
 
 
 # Test Berkeley-IoT WiFi connection
